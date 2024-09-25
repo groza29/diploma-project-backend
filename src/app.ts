@@ -1,10 +1,5 @@
 import express, { Application } from 'express';
-import dynamoDB from './config/db';
-// import userRoutes from './routes/userRoutes';
-// import authRoutes from './routes/authRoutes';
-// import { errorHandler } from './middlewares/errorHandler';
-// import { logger } from './utils/logger';
-
+import userRoutes from './routes/UserRoutes';
 // Initialize Express application
 const app: Application = express();
 
@@ -12,10 +7,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// // Routes
-// app.use('/users', userRoutes);
-// app.use('/auth', authRoutes);
-
+app.use(userRoutes);
 // // Error handling middleware
 // app.use(errorHandler);
 
