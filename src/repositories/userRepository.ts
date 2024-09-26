@@ -30,16 +30,7 @@ export class UserRepository {
     };
     await docClient.send(new DeleteCommand(params));
   }
-  // async updateUser(userId: string, name: string): Promise<void> {
-  //   const params = {
-  //     TableName: this.tableName,
-  //     Key: { Id: userId },
-  //     UpdateExpression: 'set #n = :name',
-  //     ExpressionAttributeNames: { '#n': 'Name' },
-  //     ExpressionAttributeValues: { ':name': name },
-  //   };
-  //   await docClient.send(new UpdateCommand(params));
-  // }
+
   async getAllUsers(): Promise<User[]> {
     const params = {
       TableName: this.tableName,
@@ -50,6 +41,39 @@ export class UserRepository {
     } catch (error) {
       console.error('error fetching all users: ', error);
       throw new Error();
+    }
+  }
+
+  async updateUser(id: string, updates: Partial<User>, firstName: string): Promise<void> {
+    if (updates.firstName == undefined || updates.firstName === firstName) {
+      let updateExpression = 'SET';
+      const expressionAttributeNames: any = {};
+      const expressionAttributeValues: any = {};
+
+      Object.keys(updates).forEach((key, index) => {
+        const field = `#field${index}`;
+        const value = `:value${index}`;
+
+        updateExpression += ` ${field} = ${value},`;
+        expressionAttributeNames[field] = key;
+        expressionAttributeValues[value] = updates[key as keyof User];
+      });
+
+      updateExpression = updateExpression.slice(0, -1);
+
+      const params = {
+        TableName: this.tableName,
+        Key: { id: id, firstName: firstName },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+      };
+      await docClient.send(new UpdateCommand(params));
+      console.log('same firstname');
+    } else {
+      console.log('another firstname');
+      await this.deleteUserById(id, firstName);
+      await this.addUser(updates as User);
     }
   }
 }
