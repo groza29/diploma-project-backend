@@ -7,14 +7,14 @@ export class UserService {
   async createUser(user: User): Promise<void> {
     await userRepository.addUser(user);
   }
-  async getUserById(userID: string, firstName: string): Promise<User | null> {
-    return await userRepository.getUserById(userID, firstName);
+  async getUserById(userID: string): Promise<User | null> {
+    return await userRepository.getUserById(userID);
   }
-  async deleteUserById(userID: string, firstName: string): Promise<void> {
-    await userRepository.deleteUserById(userID, firstName);
+  async deleteUserById(userID: string): Promise<void> {
+    await userRepository.deleteUserById(userID);
   }
-  async updateUser(userID: string, user: Partial<User>, firstName: string): Promise<void> {
-    await userRepository.updateUser(userID, user, firstName);
+  async updateUser(userID: string, user: Partial<User>): Promise<void> {
+    await userRepository.updateUser(userID, user);
   }
   async getAllUsers(): Promise<User[]> {
     return await userRepository.getAllUsers();

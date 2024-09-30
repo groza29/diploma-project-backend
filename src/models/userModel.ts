@@ -3,6 +3,7 @@ export interface User {
   role: 'admin' | 'basic';
   firstName: string;
   lastName: string;
+  jobs: Set<String>;
   email: string;
   password: string;
   description: string;
@@ -12,5 +13,5 @@ export interface User {
   county: string;
   city: string;
   activeStatus: boolean;
-  createdAt: Date;
+  createdAt: Date | string;
 }
