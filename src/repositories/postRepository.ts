@@ -1,18 +1,31 @@
-import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import docClient from '../config/db';
 import { Post } from '../models/postModel';
 import { ScanCommand } from '@aws-sdk/client-dynamodb';
 import { formatPost } from '../utils/scanFormator';
+import { User } from '../models/userModel';
 
 export class PostRepository {
   private tableName = 'Posts';
-
+  private relationTable = 'Users';
   async addPost(post: Post) {
-    const params = {
-      TableName: this.tableName,
-      Item: post,
-    };
-    await docClient.send(new PutCommand(params));
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: this.relationTable,
+        Key: {
+          id: post.user_id,
+        },
+      }),
+    );
+    if (result.Item as User) {
+      const params = {
+        TableName: this.tableName,
+        Item: post,
+      };
+      await docClient.send(new PutCommand(params));
+    } else {
+      throw new Error('Something went wrong, please try again');
+    }
   }
   async getPostById(postId: string): Promise<Post | null> {
     const params = {
@@ -35,5 +48,37 @@ export class PostRepository {
       console.error('error fetching all posts: ', error);
       throw new Error();
     }
+  }
+  async deletePostById(postId: string): Promise<void> {
+    const params = {
+      TableName: this.tableName,
+      Key: { id: postId },
+    };
+    await docClient.send(new DeleteCommand(params));
+  }
+  async updatePost(id: string, updates: Partial<Post>): Promise<void> {
+    let updateExpression = 'SET';
+    const expressionAttributeNames: any = {};
+    const expressionAttributeValues: any = {};
+
+    Object.keys(updates).forEach((key, index) => {
+      const field = `#field${index}`;
+      const value = `:value${index}`;
+
+      updateExpression += ` ${field} = ${value},`;
+      expressionAttributeNames[field] = key;
+      expressionAttributeValues[value] = updates[key as keyof Post];
+    });
+
+    updateExpression = updateExpression.slice(0, -1);
+
+    const params = {
+      TableName: this.tableName,
+      Key: { id: id },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeNames: expressionAttributeNames,
+      ExpressionAttributeValues: expressionAttributeValues,
+    };
+    await docClient.send(new UpdateCommand(params));
   }
 }

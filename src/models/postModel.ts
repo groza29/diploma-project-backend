@@ -5,5 +5,5 @@ export interface Post {
   user_id: string;
   actionDate: Date;
   status: boolean;
-  createdAt: Date;
+  createdAt: Date | string;
 }
