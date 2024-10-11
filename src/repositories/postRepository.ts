@@ -3,7 +3,7 @@ import docClient from '../config/db';
 import { Post } from '../models/postModel';
 import { ScanCommand } from '@aws-sdk/client-dynamodb';
 import { formatPost } from '../utils/scanFormator';
-import { User } from '../models/userModel';
+import { CustomError } from '../utils/CustomError';
 
 export class PostRepository {
   private tableName = 'Posts';
@@ -12,7 +12,11 @@ export class PostRepository {
       TableName: this.tableName,
       Item: post,
     };
-    await docClient.send(new PutCommand(params));
+    try {
+      await docClient.send(new PutCommand(params));
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
   async getPostById(postId: string): Promise<Post | null> {
     const params = {
@@ -21,8 +25,12 @@ export class PostRepository {
         id: postId,
       },
     };
-    const result = await docClient.send(new GetCommand(params));
-    return (result.Item as Post) || null;
+    try {
+      const result = await docClient.send(new GetCommand(params));
+      return (result.Item as Post) || null;
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
   async getAllPosts(): Promise<Post[]> {
     const params = {
@@ -32,8 +40,7 @@ export class PostRepository {
       const posts = await docClient.send(new ScanCommand(params));
       return posts.Items?.map(formatPost) as Post[];
     } catch (error) {
-      console.error('error fetching all posts: ', error);
-      throw new Error();
+      throw new CustomError('error fetching all posts', 500);
     }
   }
   async deletePostById(postId: string): Promise<void> {
@@ -41,7 +48,11 @@ export class PostRepository {
       TableName: this.tableName,
       Key: { id: postId },
     };
-    await docClient.send(new DeleteCommand(params));
+    try {
+      await docClient.send(new DeleteCommand(params));
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
   async updatePost(id: string, updates: Partial<Post>): Promise<void> {
     let updateExpression = 'SET';
@@ -66,6 +77,10 @@ export class PostRepository {
       ExpressionAttributeNames: expressionAttributeNames,
       ExpressionAttributeValues: expressionAttributeValues,
     };
-    await docClient.send(new UpdateCommand(params));
+    try {
+      await docClient.send(new UpdateCommand(params));
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
 }

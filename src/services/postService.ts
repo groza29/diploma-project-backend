@@ -4,6 +4,7 @@ import { PostRepository } from '../repositories/postRepository';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { User } from '../models/userModel';
 import docClient from '../config/db';
+import { CustomError } from '../utils/CustomError';
 
 const postRepository = new PostRepository();
 export class PostService {
@@ -20,6 +21,8 @@ export class PostService {
       post.id = uuidv4();
       post.createdAt = new Date().toString();
       await postRepository.addPost(post);
+    } else {
+      throw new CustomError('Internal Error', 500);
     }
   }
   async getPostById(id: string): Promise<Post> {
@@ -27,7 +30,7 @@ export class PostService {
     if (post) {
       return post;
     } else {
-      throw new Error('Post not found');
+      throw new CustomError('Post not found', 404);
     }
   }
   async getAllPosts(): Promise<Post[]> {
@@ -37,10 +40,6 @@ export class PostService {
     await postRepository.deletePostById(postID);
   }
   async updatePost(postID: string, post: Partial<Post>): Promise<void> {
-    try {
-      await postRepository.updatePost(postID, post);
-    } catch (err) {
-      throw new Error(`Failed to update post: ${err instanceof Error ? err.message : 'Unknown error'}`);
-    }
+    await postRepository.updatePost(postID, post);
   }
 }

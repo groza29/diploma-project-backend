@@ -1,61 +1,30 @@
 import { Post } from '../models/postModel';
 import { PostService } from '../services/postService';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import asyncHandler from '../utils/asyncHandler';
 
 const postService = new PostService();
 
-export const createPost = async (req: Request, res: Response) => {
-  try {
-    await postService.createPost(req.body);
-    res.status(200).json({ message: 'Post created' });
-  } catch (err) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-};
+export const createPost = asyncHandler(async (req: Request, res: Response) => {
+  await postService.createPost(req.body);
+  res.status(200).json({ message: 'Post created' });
+});
 
-export const getPostById = async (req: Request, res: Response) => {
-  try {
-    const post: Post = await postService.getPostById(req.params.id);
-    res.json(post);
-  } catch (err) {
-    if (err instanceof Error) {
-      if (err.message === 'Post not found') {
-        res.status(404).json({ error: err.message });
-      }
-      res.status(500).json({ error: err.message });
-    }
-  }
-};
-export const getAllPosts = async (req: Request, res: Response) => {
-  try {
-    const posts: Post[] = await postService.getAllPosts();
-    res.json(posts);
-  } catch (err) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-};
+export const getPostById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const post: Post = await postService.getPostById(req.params.id);
+  res.json(post);
+});
 
-export const deletePostById = async (req: Request, res: Response) => {
-  try {
-    await postService.deletePostById(req.params.id);
-    res.status(204).send('post deleted');
-  } catch (err) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-};
-export const updatePost = async (req: Request, res: Response) => {
-  try {
-    await postService.updatePost(req.params.id, req.body);
-    res.json({ message: 'Post updated' });
-  } catch (err) {
-    if (err instanceof Error) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-};
+export const getAllPosts = asyncHandler(async (req: Request, res: Response) => {
+  const posts: Post[] = await postService.getAllPosts();
+  res.json(posts);
+});
+
+export const deletePostById = asyncHandler(async (req: Request, res: Response) => {
+  await postService.deletePostById(req.params.id);
+  res.status(204).send('Post deleted');
+});
+export const updatePost = asyncHandler(async (req: Request, res: Response) => {
+  await postService.updatePost(req.params.id, req.body);
+  res.json({ message: 'Post updated' });
+});
