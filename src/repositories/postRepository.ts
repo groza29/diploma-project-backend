@@ -7,25 +7,12 @@ import { User } from '../models/userModel';
 
 export class PostRepository {
   private tableName = 'Posts';
-  private relationTable = 'Users';
   async addPost(post: Post) {
-    const result = await docClient.send(
-      new GetCommand({
-        TableName: this.relationTable,
-        Key: {
-          id: post.user_id,
-        },
-      }),
-    );
-    if (result.Item as User) {
-      const params = {
-        TableName: this.tableName,
-        Item: post,
-      };
-      await docClient.send(new PutCommand(params));
-    } else {
-      throw new Error('Something went wrong, please try again');
-    }
+    const params = {
+      TableName: this.tableName,
+      Item: post,
+    };
+    await docClient.send(new PutCommand(params));
   }
   async getPostById(postId: string): Promise<Post | null> {
     const params = {
