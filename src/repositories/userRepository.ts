@@ -3,6 +3,7 @@ import docClient from '../config/db';
 import { PutCommand, GetCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { ScanCommand } from '@aws-sdk/client-dynamodb';
 import { formatUser } from '../utils/scanFormator';
+import { CustomError } from '../utils/CustomError';
 
 export class UserRepository {
   private tableName = 'Users';
@@ -12,7 +13,11 @@ export class UserRepository {
       TableName: this.tableName,
       Item: user,
     };
-    await docClient.send(new PutCommand(params));
+    try {
+      await docClient.send(new PutCommand(params));
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
 
   async getUserById(userId: string): Promise<User | null> {
@@ -20,15 +25,23 @@ export class UserRepository {
       TableName: this.tableName,
       Key: { id: userId },
     };
-    const result = await docClient.send(new GetCommand(params));
-    return (result.Item as User) || null;
+    try {
+      const result = await docClient.send(new GetCommand(params));
+      return (result.Item as User) || null;
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
   async deleteUserById(userId: string): Promise<void> {
     const params = {
       TableName: this.tableName,
       Key: { id: userId },
     };
-    await docClient.send(new DeleteCommand(params));
+    try {
+      await docClient.send(new DeleteCommand(params));
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -39,8 +52,7 @@ export class UserRepository {
       const data = await docClient.send(new ScanCommand(params));
       return data.Items?.map(formatUser) as User[];
     } catch (error) {
-      console.error('error fetching all users: ', error);
-      throw new Error();
+      throw new CustomError('error fetching all the users', 500);
     }
   }
 
@@ -67,6 +79,10 @@ export class UserRepository {
       ExpressionAttributeNames: expressionAttributeNames,
       ExpressionAttributeValues: expressionAttributeValues,
     };
-    await docClient.send(new UpdateCommand(params));
+    try {
+      await docClient.send(new UpdateCommand(params));
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
   }
 }
