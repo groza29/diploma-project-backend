@@ -7,26 +7,31 @@ const userRepository = new UserRepository();
 
 export class UserService {
   async createUser(user: User): Promise<void> {
-    const newUser: User = {
-      id: uuidv4(),
-      createdAt: new Date().toString(),
-      role: user.role || 'basic',
-      activeStatus: user.activeStatus ?? true,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      password: user.password,
-      description: user.description,
-      phoneNumber: user.phoneNumber,
-      rating: user.rating ?? 0,
-      country: user.country,
-      county: user.county,
-      city: user.city,
-      jobs: user.jobs || [],
-    };
-    const hashedPassword: string = await this.hashPassword(newUser.password);
-    newUser.password = hashedPassword;
-    await userRepository.addUser(newUser);
+    const existing = await userRepository.getUserByEmail(user.email);
+    if (existing) {
+      throw new CustomError('The email already exists', 400);
+    } else {
+      const newUser: User = {
+        id: uuidv4(),
+        createdAt: new Date().toString(),
+        role: user.role || 'basic',
+        activeStatus: user.activeStatus ?? true,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: user.password,
+        description: user.description,
+        phoneNumber: user.phoneNumber,
+        rating: user.rating ?? 0,
+        country: user.country,
+        county: user.county,
+        city: user.city,
+        jobs: user.jobs || [],
+      };
+      const hashedPassword: string = await this.hashPassword(newUser.password);
+      newUser.password = hashedPassword;
+      await userRepository.addUser(newUser);
+    }
   }
   async getUserById(userID: string): Promise<User> {
     const user: User | null = await userRepository.getUserById(userID);

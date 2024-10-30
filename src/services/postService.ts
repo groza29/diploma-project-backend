@@ -1,23 +1,17 @@
 import { Post } from '../models/postModel';
 import { v4 as uuidv4 } from 'uuid';
 import { PostRepository } from '../repositories/postRepository';
-import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { User } from '../models/userModel';
-import docClient from '../config/db';
 import { CustomError } from '../utils/CustomError';
+import { UserRepository } from '../repositories/userRepository';
 
 const postRepository = new PostRepository();
+const userRepository = new UserRepository();
+
 export class PostService {
   async createPost(post: Post): Promise<void> {
-    const result = await docClient.send(
-      new GetCommand({
-        TableName: 'Users',
-        Key: {
-          id: post.user_id,
-        },
-      }),
-    );
-    if (result.Item as User) {
+    const result = await userRepository.getUserById(post.user_id);
+    if (result as User) {
       post.id = uuidv4();
       post.createdAt = new Date().toString();
       await postRepository.addPost(post);

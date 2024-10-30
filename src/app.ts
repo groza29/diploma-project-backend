@@ -1,8 +1,8 @@
 import express, { Application } from 'express';
 import userRoutes from './routes/UserRoutes';
 import postRoutes from './routes/PostRoutes';
+import reportRoutes from './routes/ReportRoutes';
 import errorHandler from './middlewares/errorHandler';
-// Initialize Express application
 const app: Application = express();
 
 // Middleware
@@ -11,8 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(userRoutes);
 app.use(postRoutes);
-// // Error handling middleware
-// app.use(errorHandler);
+app.use(reportRoutes);
 
 app.use(errorHandler);
 

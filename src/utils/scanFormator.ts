@@ -1,4 +1,5 @@
 import { Post } from '../models/postModel';
+import { Report } from '../models/reportModel';
 import { User } from '../models/userModel';
 
 export function formatJobs(jobsIn: any): string[] {
@@ -46,4 +47,15 @@ export function formatPost(postIn: any): Post {
     createdAt: postIn.createdAt.S,
   };
   return post;
+}
+export function formatReport(reportIn: any): Report {
+  let report: Report = {
+    id: reportIn.id.S,
+    type: reportIn.id_reported.S,
+    id_reported: reportIn.id_reported.S,
+    message: reportIn.status.S,
+    createdAt: reportIn.createdAt.S,
+    status: reportIn.status.S,
+  };
+  return report;
 }

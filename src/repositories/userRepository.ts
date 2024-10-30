@@ -1,7 +1,7 @@
 import { User } from '../models/userModel';
 import docClient from '../config/db';
 import { PutCommand, GetCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { ScanCommand } from '@aws-sdk/client-dynamodb';
+import { QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { formatUser } from '../utils/scanFormator';
 import { CustomError } from '../utils/CustomError';
 
@@ -28,6 +28,22 @@ export class UserRepository {
     try {
       const result = await docClient.send(new GetCommand(params));
       return (result.Item as User) || null;
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
+  }
+  async getUserByEmail(email: string): Promise<User | null> {
+    const params = {
+      TableName: this.tableName,
+      IndexName: 'EmailIndex',
+      KeyConditionExpression: 'email = :email',
+      ExpressionAttributeValues: {
+        ':email': { S: email },
+      },
+    };
+    try {
+      const result = await docClient.send(new QueryCommand(params));
+      return (result.Items?.[0] as unknown as User) || null;
     } catch (error) {
       throw new CustomError('Database error', 500);
     }
