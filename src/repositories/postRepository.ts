@@ -1,13 +1,13 @@
 import { DeleteCommand, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import docClient from '../config/db';
 import { Post } from '../models/postModel';
-import { ScanCommand } from '@aws-sdk/client-dynamodb';
+import { QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { formatPost } from '../utils/scanFormator';
 import { CustomError } from '../utils/CustomError';
 
 export class PostRepository {
   private tableName = 'Posts';
-  async addPost(post: Post) {
+  async addPost(post: Post): Promise<void> {
     const params = {
       TableName: this.tableName,
       Item: post,
@@ -79,6 +79,25 @@ export class PostRepository {
     };
     try {
       await docClient.send(new UpdateCommand(params));
+    } catch (error) {
+      throw new CustomError('Database error', 500);
+    }
+  }
+  async getAllPostsOfAnUser(user_id: string): Promise<Post[]> {
+    const params = {
+      TableName: this.tableName,
+      IndexName: 'UserPostIndex',
+      KeyConditionExpression: '#user_id = :user_id',
+      ExpressionAttributeNames: {
+        '#user_id': 'user_id',
+      },
+      ExpressionAttributeValues: {
+        ':user_id': { S: user_id },
+      },
+    };
+    try {
+      const result = await docClient.send(new QueryCommand(params));
+      return result.Items?.map(formatPost) as Post[];
     } catch (error) {
       throw new CustomError('Database error', 500);
     }

@@ -36,4 +36,7 @@ export class PostService {
   async updatePost(postID: string, post: Partial<Post>): Promise<void> {
     await postRepository.updatePost(postID, post);
   }
+  async getAllPostsOfAnUser(user_id: string): Promise<Post[]> {
+    return await postRepository.getAllPostsOfAnUser(user_id);
+  }
 }

@@ -7,17 +7,17 @@ const postService = new PostService();
 
 export const createPost = asyncHandler(async (req: Request, res: Response) => {
   await postService.createPost(req.body);
-  res.status(200).json({ message: 'Post created' });
+  res.status(201).json({ message: 'Post created' });
 });
 
 export const getPostById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const post: Post = await postService.getPostById(req.params.id);
-  res.json(post);
+  res.status(200).json(post);
 });
 
 export const getAllPosts = asyncHandler(async (req: Request, res: Response) => {
   const posts: Post[] = await postService.getAllPosts();
-  res.json(posts);
+  res.status(200).json(posts);
 });
 
 export const deletePostById = asyncHandler(async (req: Request, res: Response) => {
@@ -26,5 +26,9 @@ export const deletePostById = asyncHandler(async (req: Request, res: Response) =
 });
 export const updatePost = asyncHandler(async (req: Request, res: Response) => {
   await postService.updatePost(req.params.id, req.body);
-  res.json({ message: 'Post updated' });
+  res.status(205).json({ message: 'Post updated' });
+});
+export const getAllPostsOfAnUser = asyncHandler(async (req: Request, res: Response) => {
+  const posts: Post[] = await postService.getAllPostsOfAnUser(req.params.user_id);
+  res.status(200).json(posts);
 });

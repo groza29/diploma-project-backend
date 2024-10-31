@@ -12,12 +12,12 @@ export const createUser = asyncHandler(async (req: Request, res: Response) => {
 
 export const getUserById = asyncHandler(async (req: Request, res: Response) => {
   const user: User = await userService.getUserById(req.params.id);
-  res.json(user);
+  res.status(200).json(user);
 });
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   await userService.updateUser(req.params.id, req.body);
-  res.json({ message: 'User updated' });
+  res.status(200).json({ message: 'User updated' });
 });
 
 export const deleteUserById = asyncHandler(async (req: Request, res: Response) => {
@@ -26,5 +26,5 @@ export const deleteUserById = asyncHandler(async (req: Request, res: Response) =
 });
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
   const users: User[] = await userService.getAllUsers();
-  res.json(users);
+  res.status(205).json(users);
 });

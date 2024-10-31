@@ -1,3 +1,4 @@
+import { Application } from '../models/applicationModel';
 import { Post } from '../models/postModel';
 import { Report } from '../models/reportModel';
 import { User } from '../models/userModel';
@@ -58,4 +59,15 @@ export function formatReport(reportIn: any): Report {
     status: reportIn.status.S,
   };
   return report;
+}
+export function formatApplication(applicationIn: any): Application {
+  let applcation: Application = {
+    id: applicationIn.id.S,
+    user_id: applicationIn.user_id.S,
+    post_id: applicationIn.post_id.S,
+    message: applicationIn.message.S,
+    status: applicationIn.status.BOOL,
+    createdAt: applicationIn.createdAt.S,
+  };
+  return applcation;
 }
