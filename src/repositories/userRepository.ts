@@ -1,4 +1,4 @@
-import { User } from '../models/userModel';
+import { User, UserWithJobs } from '../models/userModel';
 import docClient from '../config/db';
 import { PutCommand, GetCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';

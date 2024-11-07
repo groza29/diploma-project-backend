@@ -6,7 +6,7 @@ export interface User {
   role: Role;
   firstName: string;
   lastName: string;
-  jobs: Set<Job>;
+  jobs: Set<string>;
   email: string;
   password: string;
   description: string;
@@ -17,4 +17,7 @@ export interface User {
   city: string;
   activeStatus: boolean;
   createdAt: number;
+}
+export interface UserWithJobs extends Omit<User, 'jobs'> {
+  jobs: Job[];
 }

@@ -1,10 +1,15 @@
-import { User } from '../models/userModel';
+import { User, UserWithJobs } from '../models/userModel';
 import { UserRepository } from '../repositories/userRepository';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomError } from '../utils/CustomError';
 import { Role } from '../models/RoleEnum';
+import { JobRepository } from '../repositories/jobRepository';
+import { Job } from '../models/jobModel';
+import { convertUserToUserWithJobs } from '../utils/userConvertWithJobs';
+
 const userRepository = new UserRepository();
+const jobRepository = new JobRepository();
 
 export class UserService {
   async createUser(user: User): Promise<void> {
@@ -34,10 +39,12 @@ export class UserService {
       await userRepository.addUser(newUser);
     }
   }
-  async getUserById(userID: string): Promise<User> {
+  async getUserById(userID: string): Promise<UserWithJobs> {
     const user: User | null = await userRepository.getUserById(userID);
     if (user) {
-      return user;
+      const jobs: Job[] = await jobRepository.getAllJobs();
+      const userOut: UserWithJobs = convertUserToUserWithJobs(user, jobs);
+      return userOut;
     } else {
       throw new CustomError('User not found', 404);
     }
@@ -54,8 +61,16 @@ export class UserService {
       await userRepository.updateUser(userID, user);
     }
   }
-  async getAllUsers(): Promise<User[]> {
-    return await userRepository.getAllUsers();
+  async getAllUsers(): Promise<UserWithJobs[]> {
+    const jobs: Job[] = await jobRepository.getAllJobs();
+    const users: User[] = await userRepository.getAllUsers();
+    console.log('All Jobs:', jobs);
+    const usersWithJobs: UserWithJobs[] = users.map((user) => {
+      const userWithJobs = convertUserToUserWithJobs(user, jobs);
+      console.log('User with Jobs:', userWithJobs); // Log each user with their jobs for verification
+      return userWithJobs;
+    });
+    return usersWithJobs;
   }
   private async hashPassword(password: string): Promise<string> {
     return new Promise((resolve, reject) => {

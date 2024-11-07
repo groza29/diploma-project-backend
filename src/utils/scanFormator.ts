@@ -1,21 +1,20 @@
 import { Application } from '../models/applicationModel';
 import { Job } from '../models/jobModel';
-import { Type } from '../models/JobTypeEnum';
 import { Post } from '../models/postModel';
 import { Report } from '../models/reportModel';
 import { User } from '../models/userModel';
 
-// export function formatJobs(jobsIn: any): string[] {
-//   const jobArray: string[] = [];
-//   if (jobsIn && Array.isArray(jobsIn.L)) {
-//     jobsIn.L.forEach((job: any) => {
-//       if (job.S) {
-//         jobArray.push(job.S);
-//       }
-//     });
-//   }
-//   return jobArray;
-// }
+export function formatJobs(jobsIn: any): string[] {
+  const jobArray: string[] = [];
+  if (jobsIn && Array.isArray(jobsIn.L)) {
+    jobsIn.L.forEach((job: any) => {
+      if (job.S) {
+        jobArray.push(job.S);
+      }
+    });
+  }
+  return jobArray;
+}
 
 export function formatUser(userIn: any): User {
   //this is used when using scan for getting users
@@ -24,7 +23,7 @@ export function formatUser(userIn: any): User {
     role: userIn.role.S,
     firstName: userIn.firstName.S,
     lastName: userIn.lastName.S,
-    jobs: userIn.jobs,
+    jobs: formatJobs(userIn.jobs) as unknown as Set<string>,
     email: userIn.email.S,
     password: userIn.password.S,
     description: userIn.description.S,

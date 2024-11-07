@@ -1,7 +1,7 @@
 import { Post } from '../models/postModel';
 import { v4 as uuidv4 } from 'uuid';
 import { PostRepository } from '../repositories/postRepository';
-import { User } from '../models/userModel';
+import { User, UserWithJobs } from '../models/userModel';
 import { CustomError } from '../utils/CustomError';
 import { UserRepository } from '../repositories/userRepository';
 

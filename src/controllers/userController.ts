@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/userService';
-import { User } from '../models/userModel';
+import { User, UserWithJobs } from '../models/userModel';
 import asyncHandler from '../utils/asyncHandler';
 
 const userService = new UserService();
@@ -11,7 +11,7 @@ export const createUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getUserById = asyncHandler(async (req: Request, res: Response) => {
-  const user: User = await userService.getUserById(req.params.id);
+  const user: UserWithJobs = await userService.getUserById(req.params.id);
   res.status(200).json(user);
 });
 
@@ -25,6 +25,6 @@ export const deleteUserById = asyncHandler(async (req: Request, res: Response) =
   res.status(204).send('user deleted');
 });
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-  const users: User[] = await userService.getAllUsers();
+  const users: UserWithJobs[] = await userService.getAllUsers();
   res.status(200).json(users);
 });
