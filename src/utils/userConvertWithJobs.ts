@@ -6,8 +6,9 @@ export function convertUserToUserWithJobs(user: User, jobs: Job[]): UserWithJobs
     .map((id_job) => jobs.find((job) => job.id === id_job))
     .filter((job): job is Job => job !== undefined);
 
+  const { password, ...userWithoutPassword } = user;
   const newUser: UserWithJobs = {
-    ...user,
+    ...userWithoutPassword,
     jobs: jobDetails,
   };
   console.log(newUser);

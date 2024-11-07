@@ -18,6 +18,6 @@ export interface User {
   activeStatus: boolean;
   createdAt: number;
 }
-export interface UserWithJobs extends Omit<User, 'jobs'> {
+export interface UserWithJobs extends Omit<User, 'jobs' | 'password'> {
   jobs: Job[];
 }

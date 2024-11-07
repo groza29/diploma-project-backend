@@ -64,10 +64,8 @@ export class UserService {
   async getAllUsers(): Promise<UserWithJobs[]> {
     const jobs: Job[] = await jobRepository.getAllJobs();
     const users: User[] = await userRepository.getAllUsers();
-    console.log('All Jobs:', jobs);
     const usersWithJobs: UserWithJobs[] = users.map((user) => {
       const userWithJobs = convertUserToUserWithJobs(user, jobs);
-      console.log('User with Jobs:', userWithJobs); // Log each user with their jobs for verification
       return userWithJobs;
     });
     return usersWithJobs;
