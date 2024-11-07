@@ -1,3 +1,5 @@
+import { Job } from './jobModel';
+
 export interface Post {
   id: string;
   title: string;
@@ -5,5 +7,6 @@ export interface Post {
   user_id: string;
   actionDate: Date;
   status: boolean;
-  createdAt: Date | string;
+  jobs: Set<Job>;
+  createdAt: number;
 }

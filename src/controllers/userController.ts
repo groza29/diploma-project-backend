@@ -26,5 +26,5 @@ export const deleteUserById = asyncHandler(async (req: Request, res: Response) =
 });
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
   const users: User[] = await userService.getAllUsers();
-  res.status(205).json(users);
+  res.status(200).json(users);
 });

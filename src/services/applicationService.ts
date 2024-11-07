@@ -22,7 +22,7 @@ export class ApplicationService {
         throw new CustomError('Already applied', 302);
       }
       application.id = uuidv4();
-      application.createdAt = new Date().toString();
+      application.createdAt = Date.now();
       application.status = true;
       await applicationRepository.createApplication(application);
     } else {

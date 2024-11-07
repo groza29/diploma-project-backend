@@ -1,19 +1,21 @@
 import { Application } from '../models/applicationModel';
+import { Job } from '../models/jobModel';
+import { Type } from '../models/JobTypeEnum';
 import { Post } from '../models/postModel';
 import { Report } from '../models/reportModel';
 import { User } from '../models/userModel';
 
-export function formatJobs(jobsIn: any): string[] {
-  const jobArray: string[] = [];
-  if (jobsIn && Array.isArray(jobsIn.L)) {
-    jobsIn.L.forEach((job: any) => {
-      if (job.S) {
-        jobArray.push(job.S);
-      }
-    });
-  }
-  return jobArray;
-}
+// export function formatJobs(jobsIn: any): string[] {
+//   const jobArray: string[] = [];
+//   if (jobsIn && Array.isArray(jobsIn.L)) {
+//     jobsIn.L.forEach((job: any) => {
+//       if (job.S) {
+//         jobArray.push(job.S);
+//       }
+//     });
+//   }
+//   return jobArray;
+// }
 
 export function formatUser(userIn: any): User {
   //this is used when using scan for getting users
@@ -22,7 +24,7 @@ export function formatUser(userIn: any): User {
     role: userIn.role.S,
     firstName: userIn.firstName.S,
     lastName: userIn.lastName.S,
-    jobs: formatJobs(userIn.jobs) as unknown as Set<string>,
+    jobs: userIn.jobs,
     email: userIn.email.S,
     password: userIn.password.S,
     description: userIn.description.S,
@@ -32,7 +34,7 @@ export function formatUser(userIn: any): User {
     county: userIn.county.S,
     city: userIn.city.S,
     activeStatus: userIn.activeStatus.BOOL,
-    createdAt: userIn.createdAt.S,
+    createdAt: userIn.createdAt.N,
   };
   return user;
 }
@@ -45,7 +47,8 @@ export function formatPost(postIn: any): Post {
     user_id: postIn.user_id.S,
     actionDate: postIn.actionDate.S,
     status: postIn.status.BOOL,
-    createdAt: postIn.createdAt.S,
+    createdAt: postIn.createdAt.N,
+    jobs: postIn.jobs,
   };
   return post;
 }
@@ -55,7 +58,7 @@ export function formatReport(reportIn: any): Report {
     type: reportIn.id_reported.S,
     id_reported: reportIn.id_reported.S,
     message: reportIn.status.S,
-    createdAt: reportIn.createdAt.S,
+    createdAt: reportIn.createdAt.N,
     status: reportIn.status.S,
   };
   return report;
@@ -67,7 +70,17 @@ export function formatApplication(applicationIn: any): Application {
     post_id: applicationIn.post_id.S,
     message: applicationIn.message.S,
     status: applicationIn.status.BOOL,
-    createdAt: applicationIn.createdAt.S,
+    createdAt: applicationIn.createdAt.N,
   };
   return applcation;
+}
+export function formatJob(jobIn: any): Job {
+  let job: Job = {
+    id: jobIn.id.S,
+    type: jobIn.type.S,
+    departament: jobIn.departament.S,
+    name: jobIn.name.S,
+  };
+
+  return job;
 }

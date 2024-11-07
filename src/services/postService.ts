@@ -13,7 +13,7 @@ export class PostService {
     const result = await userRepository.getUserById(post.user_id);
     if (result as User) {
       post.id = uuidv4();
-      post.createdAt = new Date().toString();
+      post.createdAt = Date.now();
       await postRepository.addPost(post);
     } else {
       throw new CustomError('Internal Error', 500);

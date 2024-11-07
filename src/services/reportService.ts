@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserRepository } from '../repositories/userRepository';
 import { CustomError } from '../utils/CustomError';
 import { PostRepository } from '../repositories/postRepository';
+import { Status } from '../models/StatusEnum';
+import { Type } from '../models/TypeEnum';
 
 const reportRepository = new ReportRepository();
 const userRepository = new UserRepository();
@@ -15,11 +17,11 @@ export class ReportService {
       id: uuidv4(),
       type: report.type,
       id_reported: report.id_reported,
-      status: report.status ?? 'OPEN',
+      status: report.status ?? Status.OPEN,
       message: report.message,
-      createdAt: new Date().toString(),
+      createdAt: Date.now(),
     };
-    if (report.type === 'user') {
+    if (report.type === Type.USER) {
       const result = await userRepository.getUserById(report.id_reported);
       if (!result) {
         throw new CustomError("The id doesn't exist", 404);
@@ -27,7 +29,7 @@ export class ReportService {
         await reportRepository.addReport(newReport);
       }
     }
-    if (report.type === 'post') {
+    if (report.type === Type.POST) {
       const result = await postRepository.getPostById(report.id_reported);
       if (!result) {
         throw new CustomError("The id doesn't exist", 404);

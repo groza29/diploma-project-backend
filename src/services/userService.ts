@@ -3,6 +3,7 @@ import { UserRepository } from '../repositories/userRepository';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomError } from '../utils/CustomError';
+import { Role } from '../models/RoleEnum';
 const userRepository = new UserRepository();
 
 export class UserService {
@@ -13,8 +14,8 @@ export class UserService {
     } else {
       const newUser: User = {
         id: uuidv4(),
-        createdAt: new Date().toString(),
-        role: user.role || 'basic',
+        createdAt: Date.now(),
+        role: user.role || Role.BASIC,
         activeStatus: user.activeStatus ?? true,
         firstName: user.firstName,
         lastName: user.lastName,

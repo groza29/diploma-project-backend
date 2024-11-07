@@ -1,8 +1,11 @@
+import { Status } from './StatusEnum';
+import { Type } from './TypeEnum';
+
 export interface Report {
   id: string;
-  type: 'user' | 'post';
+  type: Type;
   id_reported: string;
   message: string;
-  createdAt: Date | string;
-  status: 'OPEN' | 'IN PROGRESS' | 'CLOSED';
+  createdAt: number;
+  status: Status;
 }
