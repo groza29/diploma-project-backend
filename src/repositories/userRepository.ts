@@ -43,7 +43,7 @@ export class UserRepository {
     };
     try {
       const result = await docClient.send(new QueryCommand(params));
-      return (result.Items?.[0] as unknown as User) || null;
+      return (formatUser(result.Items?.[0]) as User) || null;
     } catch (error) {
       throw new CustomError('Database error', 500);
     }
