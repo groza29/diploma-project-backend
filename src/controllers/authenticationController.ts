@@ -6,6 +6,7 @@ import { AuthenticationService } from '../services/authenticationService';
 const authService = new AuthenticationService();
 
 export const register = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  console.log(req.body);
   await authService.register(req.body);
   res.status(201).json({ message: 'User registered successfully' });
 });

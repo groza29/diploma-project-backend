@@ -12,33 +12,39 @@ const JWT_SECRET = process.env.JWT_SECRET || 'random';
 export class AuthenticationService {
   private userRepository = new UserRepository();
 
-  async register(user: User): Promise<void> {
-    const existing = await this.userRepository.getUserByEmail(user.email);
+  async register(user: Partial<User>): Promise<void> {
+    const existing = await this.userRepository.getUserByEmail(user.email!);
     if (existing) {
       throw new CustomError('The email already exists', 400);
-    } else {
-      const newUser: User = {
-        id: uuidv4(),
-        createdAt: Date.now(),
-        role: user.role || Role.BASIC,
-        activeStatus: user.activeStatus ?? true,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        password: user.password,
-        description: user.description,
-        phoneNumber: user.phoneNumber,
-        rating: user.rating ?? 0,
-        country: user.country,
-        county: user.county,
-        city: user.city,
-        jobs: user.jobs || [],
-      };
-      const hashedPassword: string = await hashPassword(newUser.password);
-      newUser.password = hashedPassword;
-      await this.userRepository.addUser(newUser);
     }
+
+    const newUser: User = {
+      id: uuidv4(),
+      createdAt: Date.now(),
+      role: user.role || Role.BASIC,
+      activeStatus: user.activeStatus ?? true,
+      firstName: user.firstName!.trim(),
+      lastName: user.lastName!.trim(),
+      email: user.email!.trim(),
+      password: user.password!.trim(),
+      description: user.description?.trim() || ' ',
+      phoneNumber: user.phoneNumber?.trim() || ' ',
+      rating: user.rating ?? 0,
+      country: user.country?.trim() || ' ',
+      county: user.county?.trim() || ' ',
+      city: user.city?.trim() || ' ',
+      jobs: user.jobs || null,
+    };
+
+    console.log('New User Object:', JSON.stringify(newUser, null, 2));
+
+    const hashedPassword: string = await hashPassword(newUser.password);
+    newUser.password = hashedPassword;
+
+    // Insert into DynamoDB
+    await this.userRepository.addUser(newUser);
   }
+
   async login(email: string, password: string): Promise<string> {
     if (typeof email !== 'string' || typeof password !== 'string') {
       throw new CustomError('Email and password must be strings', 400);

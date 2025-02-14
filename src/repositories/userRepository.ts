@@ -16,6 +16,7 @@ export class UserRepository {
     try {
       await docClient.send(new PutCommand(params));
     } catch (error) {
+      console.error(error);
       throw new CustomError('Database error', 500);
     }
   }
@@ -27,6 +28,7 @@ export class UserRepository {
     };
     try {
       const result = await docClient.send(new GetCommand(params));
+
       return (result.Item as User) || null;
     } catch (error) {
       throw new CustomError('Database error', 500);
@@ -43,8 +45,13 @@ export class UserRepository {
     };
     try {
       const result = await docClient.send(new QueryCommand(params));
+
+      if (!result.Items || result.Items.length === 0) {
+        return null;
+      }
       return (formatUser(result.Items?.[0]) as User) || null;
     } catch (error) {
+      console.error(error);
       throw new CustomError('Database error', 500);
     }
   }

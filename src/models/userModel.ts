@@ -6,7 +6,7 @@ export interface User {
   role: Role;
   firstName: string;
   lastName: string;
-  jobs: Set<string>;
+  jobs: Set<string> | null;
   email: string;
   password: string;
   description: string;
