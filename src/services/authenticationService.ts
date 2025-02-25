@@ -33,7 +33,7 @@ export class AuthenticationService {
       country: user.country?.trim() || ' ',
       county: user.county?.trim() || ' ',
       city: user.city?.trim() || ' ',
-      jobs: user.jobs || null,
+      jobs: user.jobs || [],
     };
 
     console.log('New User Object:', JSON.stringify(newUser, null, 2));
@@ -67,7 +67,7 @@ export class AuthenticationService {
       throw new CustomError('Invalid email or password', 401);
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
     return token;
   }
 }

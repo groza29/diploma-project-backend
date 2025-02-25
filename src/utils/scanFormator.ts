@@ -23,7 +23,7 @@ export function formatUser(userIn: any): User {
     role: userIn.role.S,
     firstName: userIn.firstName.S,
     lastName: userIn.lastName.S,
-    jobs: formatJobs(userIn.jobs) as unknown as Set<string>,
+    jobs: formatJobs(userIn.jobs) as unknown as Array<string>,
     email: userIn.email.S,
     password: userIn.password.S,
     description: userIn.description.S,
