@@ -32,6 +32,8 @@ export class UserService {
         county: user.county,
         city: user.city,
         jobs: user.jobs || null,
+        linkedin: user.linkedin || '',
+        instagram: user.instagram || '',
       };
       const hashedPassword: string = await hashPassword(newUser.password);
       newUser.password = hashedPassword;

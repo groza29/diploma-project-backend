@@ -24,6 +24,7 @@ export class ApplicationService {
       application.id = uuidv4();
       application.createdAt = Date.now();
       application.status = true;
+      application.accepted = false;
       await applicationRepository.createApplication(application);
     } else {
       throw new CustomError('Something went wrong', 500);

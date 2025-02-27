@@ -4,5 +4,6 @@ export interface Application {
   post_id: string;
   message: string;
   status: boolean;
+  accepted: boolean;
   createdAt: number;
 }

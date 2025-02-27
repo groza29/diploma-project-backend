@@ -34,6 +34,8 @@ export function formatUser(userIn: any): User {
     city: userIn.city.S,
     activeStatus: userIn.activeStatus.BOOL,
     createdAt: userIn.createdAt.N,
+    linkedin: userIn.linkedin.S,
+    instagram: userIn.instagram.S,
   };
   return user;
 }
@@ -70,6 +72,7 @@ export function formatApplication(applicationIn: any): Application {
     message: applicationIn.message.S,
     status: applicationIn.status.BOOL,
     createdAt: applicationIn.createdAt.N,
+    accepted: applicationIn.accepted.BOOL,
   };
   return applcation;
 }

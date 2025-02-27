@@ -34,6 +34,8 @@ export class AuthenticationService {
       county: user.county?.trim() || ' ',
       city: user.city?.trim() || ' ',
       jobs: user.jobs || [],
+      linkedin: user.linkedin || '',
+      instagram: user.linkedin || '',
     };
 
     console.log('New User Object:', JSON.stringify(newUser, null, 2));

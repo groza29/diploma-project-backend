@@ -15,6 +15,8 @@ export interface User {
   country: string;
   county: string;
   city: string;
+  linkedin: string;
+  instagram: string;
   activeStatus: boolean;
   createdAt: number;
 }
