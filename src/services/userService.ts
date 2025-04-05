@@ -7,6 +7,7 @@ import { JobRepository } from '../repositories/jobRepository';
 import { Job } from '../models/jobModel';
 import { convertUserToUserWithJobs } from '../utils/userConvertWithJobs';
 import { hashPassword } from '../utils/hashPassword';
+import stream from 'stream';
 
 export class UserService {
   private userRepository = new UserRepository();
@@ -71,5 +72,12 @@ export class UserService {
     });
 
     return usersWithJobs.filter((user) => user.role == Role.BASIC);
+  }
+  async getAvatar(id: string): Promise<stream.Readable> {
+    const avatarStream = await this.userRepository.getAvatar(id);
+    if (!avatarStream) {
+      throw new CustomError('Avatar not found', 404);
+    }
+    return avatarStream;
   }
 }

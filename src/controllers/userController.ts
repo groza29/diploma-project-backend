@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/userService';
-import { User, UserWithJobs } from '../models/userModel';
+import { UserWithJobs } from '../models/userModel';
 import asyncHandler from '../utils/asyncHandler';
 
 const userService = new UserService();
@@ -27,4 +27,19 @@ export const deleteUserById = asyncHandler(async (req: Request, res: Response) =
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
   const users: UserWithJobs[] = await userService.getAllUsers();
   res.status(200).json(users);
+});
+
+export const uploadAvatar = asyncHandler(async (req: Request<{ id: string }>, res: Response) => {
+  if (!req.file) {
+    res.status(404).json({ message: 'Missing file' });
+  }
+  const avatarUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/avatars/${req.params.id}.jpg`;
+
+  res.status(200).json({ message: 'Avatar uploaded successfully', avatarUrl });
+});
+
+export const getAvatar = asyncHandler(async (req: Request, res: Response) => {
+  const avatar = await userService.getAvatar(req.params.id);
+  res.setHeader('Content-Type', 'image/jpeg');
+  avatar.pipe(res);
 });

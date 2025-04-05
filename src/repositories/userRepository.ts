@@ -4,9 +4,15 @@ import { PutCommand, GetCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/l
 import { QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { formatUser } from '../utils/scanFormator';
 import { CustomError } from '../utils/CustomError';
+import stream from 'stream';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import dotenv from 'dotenv';
+import s3 from '../config/s3Config';
+dotenv.config();
 
 export class UserRepository {
   private tableName = 'Users';
+  private bucketName = process.env.S3_BUCKET_NAME!;
 
   async addUser(user: User): Promise<void> {
     const params = {
@@ -106,6 +112,17 @@ export class UserRepository {
       await docClient.send(new UpdateCommand(params));
     } catch (error) {
       throw new CustomError('Database error', 500);
+    }
+  }
+  async getAvatar(id: string): Promise<stream.Readable | null> {
+    const key = `avatars/${id}.jpg`;
+    try {
+      const command = new GetObjectCommand({ Bucket: this.bucketName, Key: key });
+      const response = await s3.send(command);
+      return response.Body as stream.Readable;
+    } catch (error) {
+      console.error('Error retrieving avatar:', error);
+      return null;
     }
   }
 }
