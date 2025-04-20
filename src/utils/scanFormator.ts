@@ -50,6 +50,7 @@ export function formatPost(postIn: any): Post {
     status: postIn.status.BOOL,
     createdAt: postIn.createdAt.N,
     jobs: postIn.jobs,
+    photos: postIn.images ? formatJobs(postIn.images) : [],
   };
   return post;
 }

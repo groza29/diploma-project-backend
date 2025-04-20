@@ -15,7 +15,7 @@ export class PostRepository {
     try {
       await docClient.send(new PutCommand(params));
     } catch (error) {
-      throw new CustomError('Database error', 500);
+      throw new CustomError(`Database error: ${error}`, 500);
     }
   }
   async getPostById(postId: string): Promise<Post | null> {

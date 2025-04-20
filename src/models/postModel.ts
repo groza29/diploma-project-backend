@@ -7,6 +7,7 @@ export interface Post {
   user_id: string;
   actionDate: Date;
   status: boolean;
-  jobs: Set<Job>;
+  jobs?: string[];
   createdAt: number;
+  photos?: string[];
 }

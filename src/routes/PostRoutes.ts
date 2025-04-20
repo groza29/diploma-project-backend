@@ -7,10 +7,11 @@ import {
   getPostById,
   updatePost,
 } from '../controllers/postController';
+import uploadPostImages from '../middlewares/uploadPostImages';
 
 const router = Router();
 
-router.post('/posts', createPost);
+router.post('/posts', uploadPostImages.array('files'), createPost);
 router.get('/posts/user/:user_id', getAllPostsOfAnUser);
 router.delete('/posts/:id', deletePostById);
 router.get('/posts/:id/', getPostById);

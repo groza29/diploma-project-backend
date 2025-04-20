@@ -79,6 +79,7 @@ export class UserRepository {
     };
     try {
       const data = await docClient.send(new ScanCommand(params));
+      console.log(data.Items?.map(formatUser) as User[]);
       return data.Items?.map(formatUser) as User[];
     } catch (error) {
       throw new CustomError('error fetching all the users', 500);
