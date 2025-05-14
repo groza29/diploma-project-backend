@@ -1,5 +1,3 @@
-import { Job } from './jobModel';
-
 export interface Post {
   id: string;
   title: string;
@@ -9,5 +7,5 @@ export interface Post {
   status: boolean;
   jobs?: string[];
   createdAt: number;
-  photos?: string[];
+  imagesUrls?: string[];
 }

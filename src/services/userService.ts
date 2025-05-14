@@ -46,6 +46,7 @@ export class UserService {
     if (user) {
       const jobs: Job[] = await this.jobRepository.getAllJobs();
       const userOut: UserWithJobs = convertUserToUserWithJobs(user, jobs);
+      userOut.jobs = Array.from(new Map(userOut.jobs.map((job) => [job.id, job])).values());
       return userOut;
     } else {
       throw new CustomError('User not found', 404);

@@ -49,8 +49,8 @@ export function formatPost(postIn: any): Post {
     actionDate: postIn.actionDate.S,
     status: postIn.status.BOOL,
     createdAt: postIn.createdAt.N,
-    jobs: postIn.jobs,
-    photos: postIn.images ? formatJobs(postIn.images) : [],
+    jobs: postIn.jobs ? formatJobs(postIn.jobs) : [],
+    imagesUrls: postIn.imagesUrls ? formatJobs(postIn.imagesUrls) : [],
   };
   return post;
 }

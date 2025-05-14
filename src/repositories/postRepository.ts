@@ -58,7 +58,6 @@ export class PostRepository {
     let updateExpression = 'SET';
     const expressionAttributeNames: any = {};
     const expressionAttributeValues: any = {};
-
     Object.keys(updates).forEach((key, index) => {
       const field = `#field${index}`;
       const value = `:value${index}`;
@@ -80,7 +79,7 @@ export class PostRepository {
     try {
       await docClient.send(new UpdateCommand(params));
     } catch (error) {
-      throw new CustomError('Database error', 500);
+      throw new CustomError('Database error' + error, 500);
     }
   }
   async getAllPostsOfAnUser(user_id: string): Promise<Post[]> {
@@ -99,7 +98,36 @@ export class PostRepository {
       const result = await docClient.send(new QueryCommand(params));
       return result.Items?.map(formatPost) as Post[];
     } catch (error) {
-      throw new CustomError('Database error', 500);
+      throw new CustomError('Database error:' + error, 500);
+    }
+  }
+
+  async getUserPostsPaginated(userId: string, lastKey?: any, limit = 6): Promise<any> {
+    const params: any = {
+      TableName: this.tableName!,
+      IndexName: 'UserPostIndex',
+      KeyConditionExpression: 'user_id = :uid',
+      ExpressionAttributeValues: {
+        ':uid': { S: userId },
+      },
+      Limit: limit,
+      ScanIndexForward: false,
+    };
+
+    if (lastKey) {
+      params.ExclusiveStartKey = lastKey;
+    }
+
+    try {
+      const data = await docClient.send(new QueryCommand(params));
+      const posts = data.Items?.map((item) => formatPost(item)) || [];
+      return {
+        posts,
+        lastKey: data.LastEvaluatedKey || null,
+      };
+    } catch (error) {
+      console.error('Error querying posts:', error);
+      throw new Error('Database error');
     }
   }
 }

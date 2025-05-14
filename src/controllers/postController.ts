@@ -6,8 +6,11 @@ import asyncHandler from '../utils/asyncHandler';
 const postService = new PostService();
 
 export const createPost = asyncHandler(async (req: Request, res: Response) => {
-  await postService.createPost(req.body, req.files as Express.Multer.File[]);
-  res.status(201).json({ message: 'Post created' });
+  const newPost = await postService.createPost(req.body, req.files as Express.Multer.File[]);
+  res.status(201).json({
+    message: 'Post created',
+    data: newPost,
+  });
 });
 
 export const getPostById = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
