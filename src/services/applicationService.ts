@@ -1,13 +1,21 @@
-import { Application } from '../models/applicationModel';
+import { Application, ApplicationWithPosts, ApplicationWithUsers } from '../models/applicationModel';
 import { v4 as uuidv4 } from 'uuid';
 import { ApplicationRepository } from '../repositories/applicationRepository';
 import { PostRepository } from '../repositories/postRepository';
 import { UserRepository } from '../repositories/userRepository';
 import { CustomError } from '../utils/CustomError';
+import { ApplicationAcceptationStatus } from '../models/ApplicationAcceptionStatus';
+import { Job } from '../models/jobModel';
+import { JobRepository } from '../repositories/jobRepository';
+import { User } from '../models/userModel';
+import { convertUserToUserWithJobs } from '../utils/userConvertWithJobs';
+import { Post } from '../models/postModel';
+import { getAiScoreFromFeedback } from '../utils/scoreFromFeedback';
 
 const applicationRepository = new ApplicationRepository();
 const postRepository = new PostRepository();
 const userRepository = new UserRepository();
+const jobRepository = new JobRepository();
 
 export class ApplicationService {
   async createApplication(application: Application): Promise<void> {
@@ -24,7 +32,7 @@ export class ApplicationService {
       application.id = uuidv4();
       application.createdAt = Date.now();
       application.status = true;
-      application.accepted = false;
+      application.accepted = ApplicationAcceptationStatus.IN_PROGRESS;
       await applicationRepository.createApplication(application);
     } else {
       throw new CustomError('Something went wrong', 500);
@@ -59,10 +67,101 @@ export class ApplicationService {
     }
     await applicationRepository.updateApplication(id, updates);
   }
-  async getApplicationsOnAPost(post_id: string): Promise<Application[]> {
-    return await applicationRepository.getApplicationsOnAPost(post_id);
+  async getApplicationsOnAPost(post_id: string): Promise<ApplicationWithUsers[]> {
+    const applications = await applicationRepository.getApplicationsOnAPost(post_id);
+    const applicationsWithUsers = await Promise.all(
+      applications.map(async (app) => {
+        const user = await userRepository.getUserById(app.user_id);
+        const jobs: Job[] = await jobRepository.getAllJobs();
+
+        if (!user) throw new CustomError(`user not found for user_id ${app.user_id}`, 404);
+
+        const { user_id, ...rest } = app;
+        const userWithJobs = convertUserToUserWithJobs(user, jobs);
+        return {
+          ...rest,
+          user: userWithJobs,
+        };
+      }),
+    );
+    return applicationsWithUsers;
   }
-  async getApplicationsOfAnUser(user_id: string): Promise<Application[]> {
-    return await applicationRepository.getApplicationsOfAnUser(user_id);
+  async getApplicationsOfAnUser(user_id: string): Promise<ApplicationWithPosts[]> {
+    const applications = await applicationRepository.getApplicationsOfAnUser(user_id);
+
+    const applicationsWithPosts = await Promise.all(
+      applications.map(async (app) => {
+        const post = await postRepository.getPostById(app.post_id);
+        if (!post) throw new CustomError(`Post not found for post_id ${app.post_id}`, 404);
+
+        const { post_id, ...rest } = app;
+
+        return {
+          ...rest,
+          post,
+        };
+      }),
+    );
+
+    return applicationsWithPosts;
+  }
+  async acceptApplication(id: string): Promise<void> {
+    const application: Application = await applicationRepository.getApplicationById(id);
+    const post: Post | null = await postRepository.getPostById(application.post_id);
+
+    if (!post) {
+      throw new CustomError('Something went wrong', 404);
+    }
+    if (post.status === false) throw new CustomError('Something went wrong', 404);
+
+    post.status = false;
+
+    const { id: _postID, ...postWithoutId } = post;
+    await postRepository.updatePost(post.id, postWithoutId);
+
+    const postApplications: Application[] = await applicationRepository.getApplicationsOnAPost(post.id);
+
+    await Promise.all(
+      postApplications
+        .filter((app) => app.id !== application.id)
+        .map(async (app) => {
+          app.accepted = ApplicationAcceptationStatus.REJECTED;
+          const { id: _, ...appWithoutId } = app;
+          await applicationRepository.updateApplication(app.id, appWithoutId);
+        }),
+    );
+
+    application.accepted = ApplicationAcceptationStatus.ACCEPTED;
+    const { id: _, user_id: _user_id, post_id: _post_id, ...acceptedWithoutId } = application;
+    await applicationRepository.updateApplication(application.id, acceptedWithoutId);
+  }
+  async rejectApplication(id: string): Promise<void> {
+    const application: Application = await applicationRepository.getApplicationById(id);
+    const { id: _, user_id: _user_id, post_id: _post_id, ...acceptedWithoutId } = application;
+    acceptedWithoutId.accepted = ApplicationAcceptationStatus.REJECTED;
+    await applicationRepository.updateApplication(id, acceptedWithoutId);
+  }
+  async feedbackApplication(id: string, feedback: string, rating: number): Promise<void> {
+    const application: Application = await applicationRepository.getApplicationById(id);
+    const user: User | null = await userRepository.getUserById(application.user_id);
+    if (!user) throw new CustomError('User not found', 404);
+    user.rating = (user.rating + application.rating!) / 2;
+    const aiScore = await getAiScoreFromFeedback(rating, feedback);
+    if (user.score === 0) {
+      user.score = aiScore;
+    } else {
+      user.score = (aiScore + user.score!) / 2;
+    }
+    if (user.rating === 0) {
+      user.rating = application.rating!;
+    } else {
+      user.rating = (user.rating + application.rating!) / 2;
+    }
+    const { id: _, user_id: _user_id, post_id: _post_id, ...acceptedWithoutId } = application;
+    const { id: _user, ...userWithoutId } = user;
+    acceptedWithoutId.feedback = feedback;
+    acceptedWithoutId.rating = rating;
+    await applicationRepository.updateApplication(id, acceptedWithoutId);
+    await userRepository.updateUser(application.user_id, userWithoutId);
   }
 }

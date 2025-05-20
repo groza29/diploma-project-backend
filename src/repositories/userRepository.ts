@@ -92,12 +92,14 @@ export class UserRepository {
     const expressionAttributeValues: any = {};
 
     Object.keys(updates).forEach((key, index) => {
+      const val = updates[key as keyof User];
+      if (val === undefined) return;
       const field = `#field${index}`;
       const value = `:value${index}`;
 
       updateExpression += ` ${field} = ${value},`;
       expressionAttributeNames[field] = key;
-      expressionAttributeValues[value] = updates[key as keyof User];
+      expressionAttributeValues[value] = val;
     });
 
     updateExpression = updateExpression.slice(0, -1);

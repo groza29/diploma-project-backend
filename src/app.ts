@@ -7,6 +7,7 @@ import jobRoutes from './routes/JobRoutes';
 import authenticationRoutes from './routes/authenticationRoutes';
 import errorHandler from './middlewares/errorHandler';
 import cors from 'cors';
+import { startPostExpirationJob } from './cron/expirePosts';
 
 const app: Application = express();
 
@@ -14,6 +15,8 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+startPostExpirationJob();
 
 app.use(authenticationRoutes);
 app.use(userRoutes);

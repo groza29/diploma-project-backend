@@ -58,12 +58,15 @@ export class ApplicationRepository {
     const expressionAttributeValues: any = {};
 
     Object.keys(updates).forEach((key, index) => {
+      const val = updates[key as keyof Application];
+      if (val === undefined) return;
+
       const field = `#field${index}`;
       const value = `:value${index}`;
 
       updateExpression += ` ${field} = ${value},`;
       expressionAttributeNames[field] = key;
-      expressionAttributeValues[value] = updates[key as keyof Application];
+      expressionAttributeValues[value] = val;
     });
 
     updateExpression = updateExpression.slice(0, -1);
@@ -78,6 +81,7 @@ export class ApplicationRepository {
     try {
       await docClient.send(new UpdateCommand(params));
     } catch (error) {
+      console.log(error);
       throw new CustomError('Database error', 500);
     }
   }

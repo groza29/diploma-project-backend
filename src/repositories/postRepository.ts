@@ -2,7 +2,7 @@ import { DeleteCommand, GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/l
 import docClient from '../config/db';
 import { Post } from '../models/postModel';
 import { QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
-import { formatPost } from '../utils/scanFormator';
+import { formatPost, formatScanPost } from '../utils/scanFormator';
 import { CustomError } from '../utils/CustomError';
 
 export class PostRepository {
@@ -38,7 +38,8 @@ export class PostRepository {
     };
     try {
       const posts = await docClient.send(new ScanCommand(params));
-      return posts.Items?.map(formatPost) as Post[];
+      console.log(posts.Items);
+      return posts.Items?.map(formatScanPost) as Post[];
     } catch (error) {
       throw new CustomError('error fetching all posts', 500);
     }

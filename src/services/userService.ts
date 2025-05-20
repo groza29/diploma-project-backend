@@ -28,13 +28,14 @@ export class UserService {
         password: user.password,
         description: user.description,
         phoneNumber: user.phoneNumber,
-        rating: user.rating ?? 0,
+        rating: 0,
         country: user.country,
         county: user.county,
         city: user.city,
         jobs: user.jobs || null,
         linkedin: user.linkedin || '',
         instagram: user.instagram || '',
+        score: 0,
       };
       const hashedPassword: string = await hashPassword(newUser.password);
       newUser.password = hashedPassword;

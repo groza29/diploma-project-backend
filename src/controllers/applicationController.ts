@@ -1,7 +1,7 @@
 import { application, Request, Response } from 'express';
 import { ApplicationService } from '../services/applicationService';
 import asyncHandler from '../utils/asyncHandler';
-import { Application } from '../models/applicationModel';
+import { Application, ApplicationWithPosts, ApplicationWithUsers } from '../models/applicationModel';
 
 const applicationService = new ApplicationService();
 
@@ -31,11 +31,24 @@ export const updateApplication = asyncHandler(async (req: Request, res: Response
 });
 
 export const getApplicationsOnAPost = asyncHandler(async (req: Request, res: Response) => {
-  const applications: Application[] = await applicationService.getApplicationsOnAPost(req.params.post_id);
+  const applications: ApplicationWithUsers[] = await applicationService.getApplicationsOnAPost(req.params.post_id);
   res.status(200).json(applications);
 });
 
 export const getApplicationsOfAnUser = asyncHandler(async (req: Request, res: Response) => {
-  const applications: Application[] = await applicationService.getApplicationsOfAnUser(req.params.user_id);
+  const applications: ApplicationWithPosts[] = await applicationService.getApplicationsOfAnUser(req.params.user_id);
   res.status(200).json(applications);
+});
+
+export const acceptApplication = asyncHandler(async (req: Request, res: Response) => {
+  await applicationService.acceptApplication(req.params.id);
+  res.status(200).json(application);
+});
+export const rejectApplication = asyncHandler(async (req: Request, res: Response) => {
+  await applicationService.rejectApplication(req.params.id);
+  res.status(200).json(application);
+});
+export const feedbackApplication = asyncHandler(async (req: Request, res: Response) => {
+  await applicationService.feedbackApplication(req.params.id, req.body.feedback, req.body.rating);
+  res.status(200).json({ message: 'feedback sent' });
 });

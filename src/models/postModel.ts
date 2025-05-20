@@ -8,4 +8,7 @@ export interface Post {
   jobs?: string[];
   createdAt: number;
   imagesUrls?: string[];
+  country: string;
+  county: string;
+  city: string;
 }

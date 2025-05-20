@@ -19,6 +19,8 @@ export interface User {
   instagram: string;
   activeStatus: boolean;
   createdAt: number;
+  avatarUrl?: string;
+  score?: number;
 }
 export interface UserWithJobs extends Omit<User, 'jobs' | 'password'> {
   jobs: Job[];
