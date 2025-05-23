@@ -36,6 +36,7 @@ export class AuthenticationService {
       jobs: user.jobs || [],
       linkedin: user.linkedin || '',
       instagram: user.linkedin || '',
+      score: user.score ?? 0,
     };
 
     console.log('New User Object:', JSON.stringify(newUser, null, 2));

@@ -11,6 +11,7 @@ export interface Application {
   accepted: ApplicationAcceptationStatus;
   createdAt: number;
   rating?: number;
+  score?: number;
 }
 export interface ApplicationWithPosts extends Omit<Application, 'post_id'> {
   post: Post;

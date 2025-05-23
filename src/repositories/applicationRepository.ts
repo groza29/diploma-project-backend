@@ -120,6 +120,7 @@ export class ApplicationRepository {
       const result = await docClient.send(new QueryCommand(params));
       return result.Items?.map(formatApplication) as Application[];
     } catch (error) {
+      console.log(error);
       throw new CustomError('Database error', 500);
     }
   }

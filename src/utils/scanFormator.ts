@@ -30,7 +30,7 @@ export function formatUser(userIn: any): User {
     password: userIn.password?.S || '',
     description: userIn.description?.S || '',
     phoneNumber: userIn.phoneNumber?.S || '',
-    rating: parseFloat(userIn.rating?.N || '0'),
+    rating: parseFloat(userIn.rating?.N || 0),
     country: userIn.country?.S || '',
     county: userIn.county?.S || '',
     city: userIn.city?.S || '',
@@ -39,7 +39,7 @@ export function formatUser(userIn: any): User {
     linkedin: userIn.linkedin?.S || '',
     instagram: userIn.instagram?.S || '',
     avatarUrl: `${API_BASE_URL}/avatar/${userIn.id.S}`,
-    score: userIn.score?.N || 0,
+    score: parseFloat(userIn.score?.N || 0),
   };
   return user;
 }
@@ -58,6 +58,7 @@ export function formatPost(postIn: any): Post {
     country: postIn.country?.S || '',
     county: postIn.county?.S || '',
     city: postIn.city?.S || '',
+    price: postIn.price?.S || '',
   };
   return post;
 }
@@ -75,6 +76,7 @@ export function formatScanPost(postIn: any): Post {
     country: postIn.country?.S || '',
     county: postIn.county?.S || '',
     city: postIn.city?.S || '',
+    price: postIn.price?.S || '',
   };
   return post;
 }
@@ -94,11 +96,12 @@ export function formatApplication(applicationIn: any): Application {
     id: applicationIn.id.S,
     user_id: applicationIn.user_id.S,
     post_id: applicationIn.post_id.S,
-    feedback: applicationIn.message?.S || '',
+    feedback: applicationIn.feedback?.S || '',
     status: applicationIn.status.BOOL,
     createdAt: applicationIn.createdAt.N,
     accepted: applicationIn.accepted.S,
     rating: applicationIn.rating?.N || '',
+    score: applicationIn.score?.N || '',
   };
   return applcation;
 }

@@ -11,4 +11,5 @@ export interface Post {
   country: string;
   county: string;
   city: string;
+  price?: number;
 }

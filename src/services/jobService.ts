@@ -25,7 +25,12 @@ export class JobService {
     await jobRepository.deleteJobById(id);
   }
   async updateJob(id: string, updates: Partial<Job>): Promise<void> {
-    await jobRepository.updateJob(id, updates);
+    if (Object.prototype.hasOwnProperty.call(updates, 'id')) {
+      const { id: _, ...jobWithoutId } = updates;
+      await jobRepository.updateJob(id, jobWithoutId);
+    } else {
+      await jobRepository.updateJob(id, updates);
+    }
   }
   async getJobsByDepartament(departament: string): Promise<Job[]> {
     return await jobRepository.getJobsByDepartament(departament);

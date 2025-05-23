@@ -114,6 +114,7 @@ export class UserRepository {
     try {
       await docClient.send(new UpdateCommand(params));
     } catch (error) {
+      console.log(error);
       throw new CustomError('Database error', 500);
     }
   }

@@ -11,6 +11,7 @@ import { User } from '../models/userModel';
 import { convertUserToUserWithJobs } from '../utils/userConvertWithJobs';
 import { Post } from '../models/postModel';
 import { getAiScoreFromFeedback } from '../utils/scoreFromFeedback';
+import { sendAcceptanceEmail } from './mailService';
 
 const applicationRepository = new ApplicationRepository();
 const postRepository = new PostRepository();
@@ -132,6 +133,12 @@ export class ApplicationService {
     );
 
     application.accepted = ApplicationAcceptationStatus.ACCEPTED;
+    const user: User | null = await userRepository.getUserById(application.user_id);
+
+    if (user && user.email) {
+      await sendAcceptanceEmail(user.email, `${user.lastName} ${user.firstName}`, post.title);
+    }
+
     const { id: _, user_id: _user_id, post_id: _post_id, ...acceptedWithoutId } = application;
     await applicationRepository.updateApplication(application.id, acceptedWithoutId);
   }
@@ -144,24 +151,56 @@ export class ApplicationService {
   async feedbackApplication(id: string, feedback: string, rating: number): Promise<void> {
     const application: Application = await applicationRepository.getApplicationById(id);
     const user: User | null = await userRepository.getUserById(application.user_id);
+
     if (!user) throw new CustomError('User not found', 404);
-    user.rating = (user.rating + application.rating!) / 2;
     const aiScore = await getAiScoreFromFeedback(rating, feedback);
-    if (user.score === 0) {
-      user.score = aiScore;
-    } else {
-      user.score = (aiScore + user.score!) / 2;
-    }
-    if (user.rating === 0) {
-      user.rating = application.rating!;
-    } else {
-      user.rating = (user.rating + application.rating!) / 2;
-    }
+    console.log('ai score:', aiScore);
+    application.feedback = feedback;
+    application.rating = rating;
+    application.score = aiScore;
+    console.log('acceptedwithoutid:', application);
     const { id: _, user_id: _user_id, post_id: _post_id, ...acceptedWithoutId } = application;
-    const { id: _user, ...userWithoutId } = user;
-    acceptedWithoutId.feedback = feedback;
-    acceptedWithoutId.rating = rating;
+
     await applicationRepository.updateApplication(id, acceptedWithoutId);
+
+    await new Promise((res) => setTimeout(res, 200));
+
+    const updatedApplications: Application[] = await applicationRepository.getApplicationsOfAnUser(application.user_id);
+
+    const finishedAcceptedApps = updatedApplications.filter(
+      (app) =>
+        app.status === false &&
+        app.accepted === ApplicationAcceptationStatus.ACCEPTED &&
+        app.rating !== undefined &&
+        app.feedback !== undefined &&
+        app.id !== application.id,
+    );
+    finishedAcceptedApps.push(application);
+    console.log('finished accepted apps', finishedAcceptedApps);
+
+    let totalRating: number = 0;
+    let totalScore: number = 0;
+    let count: number = 0;
+
+    for (const app of finishedAcceptedApps) {
+      const rating = typeof app.rating === 'string' ? parseFloat(app.rating) : app.rating;
+      const score = typeof app.score === 'string' ? parseFloat(app.score) : app.score;
+
+      if (!isNaN(rating!) && !isNaN(score!)) {
+        totalRating += rating!;
+        totalScore += score!;
+        count++;
+      }
+    }
+
+    console.log('total rating:', totalRating, 'total score:', totalScore, 'Total count', count);
+    if (count > 0) {
+      user.rating = totalRating / count;
+      user.score = totalScore / count;
+    }
+
+    const { id: _user, ...userWithoutId } = user;
+    console.log(userWithoutId);
     await userRepository.updateUser(application.user_id, userWithoutId);
   }
 }
