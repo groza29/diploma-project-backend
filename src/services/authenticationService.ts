@@ -6,6 +6,7 @@ import { hashPassword } from '../utils/hashPassword';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { sendUpdatePassowrd } from './mailService';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'random';
 
@@ -72,5 +73,13 @@ export class AuthenticationService {
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
     return token;
+  }
+  async forgotPassword(email: string): Promise<void> {
+    const user: User | null = await this.userRepository.getUserByEmail(email);
+    if (user) {
+      sendUpdatePassowrd(user.email, `${user.lastName} ${user.lastName}`, user.id);
+    } else {
+      throw new CustomError('User not found', 404);
+    }
   }
 }
