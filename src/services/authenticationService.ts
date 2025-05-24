@@ -82,4 +82,13 @@ export class AuthenticationService {
       throw new CustomError('User not found', 404);
     }
   }
+  async updatePassword(userID: string, user: Partial<User>): Promise<void> {
+    if (Object.prototype.hasOwnProperty.call(user, 'password')) {
+      const hashedPassword = await hashPassword(user.password!);
+      user.password = hashedPassword;
+      await this.userRepository.updateUser(userID, user);
+    } else {
+      throw new CustomError('something went wrong', 500);
+    }
+  }
 }

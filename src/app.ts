@@ -8,6 +8,7 @@ import authenticationRoutes from './routes/authenticationRoutes';
 import errorHandler from './middlewares/errorHandler';
 import cors from 'cors';
 import { startPostExpirationJob } from './cron/expirePosts';
+import { authMiddleware } from './middlewares/auth';
 
 const app: Application = express();
 
@@ -19,11 +20,14 @@ app.use(express.urlencoded({ extended: true }));
 startPostExpirationJob();
 
 app.use(authenticationRoutes);
+app.use(jobRoutes);
+
+app.use(authMiddleware);
+
 app.use(userRoutes);
 app.use(postRoutes);
 app.use(reportRoutes);
 app.use(applicationRoutes);
-app.use(jobRoutes);
 
 app.use(errorHandler);
 

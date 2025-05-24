@@ -8,10 +8,14 @@ import { Job } from '../models/jobModel';
 import { convertUserToUserWithJobs } from '../utils/userConvertWithJobs';
 import { hashPassword } from '../utils/hashPassword';
 import stream from 'stream';
+import { ApplicationRepository } from '../repositories/applicationRepository';
+import { PostRepository } from '../repositories/postRepository';
 
 export class UserService {
   private userRepository = new UserRepository();
   private jobRepository = new JobRepository();
+  private applicationRepository = new ApplicationRepository();
+  private postRepository = new PostRepository();
   async createUser(user: User): Promise<void> {
     const existing = await this.userRepository.getUserByEmail(user.email);
     if (existing) {
@@ -54,6 +58,16 @@ export class UserService {
     }
   }
   async deleteUserById(userID: string): Promise<void> {
+    const userApplications = await this.applicationRepository.getApplicationsOfAnUser(userID);
+    for (const application of userApplications) {
+      await this.applicationRepository.deleteApplicationById(application.id);
+    }
+
+    const userPosts = await this.postRepository.getAllPostsOfAnUser(userID);
+    for (const post of userPosts) {
+      await this.postRepository.deletePostById(post.id);
+    }
+
     await this.userRepository.deleteUserById(userID);
   }
   async updateUser(userID: string, user: Partial<User>): Promise<void> {

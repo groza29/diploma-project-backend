@@ -7,11 +7,13 @@ import s3 from '../config/s3Config';
 import dotenv from 'dotenv';
 import { ListObjectsV2Command, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
+import { ApplicationRepository } from '../repositories/applicationRepository';
 
 dotenv.config();
 
 const postRepository = new PostRepository();
 const userRepository = new UserRepository();
+const applicationRepository = new ApplicationRepository();
 
 export class PostService {
   async createPost(postData: any, files: Express.Multer.File[]): Promise<Post> {
@@ -28,7 +30,6 @@ export class PostService {
     const imageKeys: string[] = [];
     const imageUrls: string[] = [];
 
-    // Upload files if they exist
     if (files && files.length > 0) {
       for (const file of files) {
         const key = `posts/${newPost.id}/${uuidv4()}-${file.originalname}`;
@@ -38,7 +39,7 @@ export class PostService {
           Key: key,
           Body: file.buffer,
           ContentType: file.mimetype,
-          ACL: 'public-read', // Make files publicly accessible
+          ACL: 'public-read',
         });
 
         await s3.send(command);
@@ -70,6 +71,10 @@ export class PostService {
   }
 
   async deletePostById(postID: string): Promise<void> {
+    const postApplications = await applicationRepository.getApplicationsOnAPost(postID);
+    for (const app of postApplications) {
+      await applicationRepository.deleteApplicationById(app.id);
+    }
     await postRepository.deletePostById(postID);
   }
 
